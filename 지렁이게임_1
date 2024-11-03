@@ -1,0 +1,23 @@
+import pygame
+import random
+
+pygame.init()
+
+
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 400
+CELL_SIZE = 20
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("지렁이 게임")
+
+clock = pygame.time.Clock()
+
+snake_pos = [[100, 50]]
+snake_direction = "RIGHT"
+snake_speed = 10
+food_pos = [random.randrange(1, (SCREEN_WIDTH // CELL_SIZE)) * CELL_SIZE,
+            random.randrange(1, (SCREEN_HEIGHT // CELL_SIZE)) * CELL_SIZE]
+
+
+pygame.quit()
