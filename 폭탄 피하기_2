@@ -1,0 +1,119 @@
+import pygame
+import random
+import sys
+
+# pygame 초기화
+pygame.init()
+
+# 창 크기
+WINDOW_WIDTH = 500
+WINDOW_HEIGHT = 600
+
+
+# 창 설정
+display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Bomb Game")
+
+# 색상 설정
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+# 캐릭터 설정
+player_width = 40
+player_height = 40
+player_x = WINDOW_WIDTH // 2 - player_width // 2
+player_y = WINDOW_HEIGHT - player_height - 10
+player_speed = 5
+
+# 장애물 설정
+obstacle_width = 50
+obstacle_height = 50
+obstacle_speed = 7
+obstacles = []
+
+# 폭발 이미지 크기
+bomb_width = WINDOW_WIDTH
+bomb_height = WINDOW_HEIGHT
+
+# 플레이어 이미지 로드
+player_image = pygame.image.load("C:/mypackage/pygame/image_file/user.png")
+player_image = pygame.transform.scale(player_image, (player_width, player_height))
+
+# 장애물 이미지 로드
+obstacle_image = pygame.image.load("C:/mypackage/pygame/image_file/bomb.png")
+obstacle_image = pygame.transform.scale(obstacle_image, (obstacle_width, obstacle_height))
+
+# 폭발 이미지 로드
+bomb_image = pygame.image.load("C:/mypackage/pygame/image_file/bomb_image.png")
+bomb_image = pygame.transform.scale(bomb_image, (bomb_width, bomb_height))
+bomb_rect = bomb_image.get_rect()
+
+# 게임 설정
+clock = pygame.time.Clock()
+font = pygame.font.Font(None, 36)
+
+# 점수 초기화
+score = 0
+
+# 함수
+# 장애물 생성 함수
+def create_obstacle():
+    x_pos = random.randint(0, WINDOW_WIDTH - obstacle_width)
+    y_pos = -obstacle_height
+    obstacles.append(pygame.Rect(x_pos, y_pos, obstacle_width, obstacle_height))
+
+# 게임 종료 함수
+def game_over():
+    display_surface.blit(bomb_image, bomb_rect)
+    game_over_text = font.render("Game Over", True, RED)
+    display_surface.blit(game_over_text, (WINDOW_WIDTH // 2 - 70, WINDOW_HEIGHT // 2 - 30))
+    pygame.display.flip()
+    pygame.time.delay(2000)
+    pygame.quit()
+    sys.exit()
+
+# 게임이 동작하는 동안 이벤트
+while True:
+    display_surface.fill(WHITE)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+    
+    # 키보드 기능
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_LEFT] and player_x > 0:
+        player_x -= player_speed
+    if keys[pygame.K_RIGHT] and player_x < WINDOW_WIDTH - player_width:
+        player_x += player_speed
+
+    # 장애물 생성
+    if random.randint(1, 20) == 1:
+        create_obstacle()
+
+    # 장애물 이동 및 충돌 검사
+    for obstacle in obstacles:
+        obstacle.y += obstacle_speed
+        if obstacle.y > WINDOW_HEIGHT:
+            obstacles.remove(obstacle)
+            score += 1
+        if obstacle.colliderect(pygame.Rect(player_x, player_y, player_width, player_height)):
+            game_over()
+
+    # 플레이어 그리기 (이미지로)
+    display_surface.blit(player_image, (player_x, player_y))
+
+    # 장애물 그리기 (이미지로)
+    for obstacle in obstacles:
+        display_surface.blit(obstacle_image, (obstacle.x, obstacle.y))
+
+    # 점수 표시
+    score_text = font.render("Score: " + str(score), True, BLACK)
+    display_surface.blit(score_text, (10, 10))
+
+    # 디스플레이 업데이트
+    pygame.display.update()
+
+    clock.tick(30)
